@@ -1,0 +1,25 @@
+# OS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build artifacts
+build/
+dist/
+.pio/
+
+# Local captures
+data/raw/
+data/private/
+*.log
+
+# Notebooks
+.ipynb_checkpoints/

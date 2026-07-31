@@ -1,0 +1,67 @@
+{
+  "schema_version": "0.1.0",
+  "shot_id": "sample-0001",
+  "captured_at": "2026-07-31T19:30:00+02:00",
+  "setup": {
+    "machine": "La Marzocco Linea Micra",
+    "grinder": "Niche Zero",
+    "scale": "Acaia Lunar 2021 AL008",
+    "basket": "18 g basket",
+    "water": null
+  },
+  "bean": {
+    "name": "Example Espresso",
+    "roaster": "Example Roaster",
+    "roast_date": "2026-07-23",
+    "days_off_roast": 8,
+    "process": null,
+    "origin": null
+  },
+  "recipe": {
+    "dose_g": 18.0,
+    "target_yield_g": 36.0,
+    "target_ratio": 2.0,
+    "target_time_s": 28,
+    "grind_setting": "16.75",
+    "temperature_c": 93
+  },
+  "raw_weight_stream": [
+    { "t_ms": 0, "weight_g": 0.0 },
+    { "t_ms": 500, "weight_g": 0.1 },
+    { "t_ms": 1000, "weight_g": 0.3 },
+    { "t_ms": 1500, "weight_g": 0.8 }
+  ],
+  "metrics": {
+    "detected_start_ms": 800,
+    "detected_end_ms": 28600,
+    "shot_time_s": 27.8,
+    "final_yield_g": 36.2,
+    "average_flow_g_s": 1.3,
+    "peak_flow_g_s": 2.2,
+    "end_flow_g_s": 1.1,
+    "flow_stability_score": 0.74,
+    "data_quality_score": 0.91
+  },
+  "feedback": {
+    "overall_score": 4,
+    "sourness": 2,
+    "bitterness": 2,
+    "body": 4,
+    "sweetness": 4,
+    "astringency": 1,
+    "notes": "Balanced, slightly fast but acceptable."
+  },
+  "recommendation": {
+    "action": "repeat_unchanged",
+    "magnitude": "none",
+    "reason": "Shot reached target yield and taste feedback is positive. Preserve variables before changing.",
+    "confidence": 0.68,
+    "keep_constant": ["dose_g", "yield_g", "grind_setting", "temperature_c"]
+  },
+  "outcome": {
+    "recommendation_followed": null,
+    "next_shot_id": null,
+    "improved": null,
+    "outcome_notes": null
+  }
+}
