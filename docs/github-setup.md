@@ -81,6 +81,35 @@ git push -u origin main
 
 Replace `<owner>` with the GitHub account or organization.
 
+## Current Remote Status
+
+Checked on 2026-07-31:
+
+```text
+origin = https://github.com/ordinalsog-ctrl/mnemor-brew-engine.git
+branch = feature/lunar-ble
+```
+
+GitHub App repository permissions:
+
+```text
+pull=true
+push=false
+```
+
+Local push attempt:
+
+```text
+Permission to ordinalsog-ctrl/mnemor-brew-engine.git denied to weissio.
+HTTP 403
+```
+
+Required fix:
+
+- grant write access to the GitHub account used locally, or
+- grant Contents write permission to the connected GitHub App, or
+- switch `origin` to a repository where the local account has push permission.
+
 ## First Issues
 
 Use `tools/work-packages.csv` as the source list for the first GitHub issues.

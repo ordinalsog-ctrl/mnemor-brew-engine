@@ -31,3 +31,11 @@ Date: 2026-07-31
 Decision: Capture and recommendation must work locally without cloud dependency in the first version.
 
 Reason: Local-first operation reduces workflow friction and preserves user ownership of data.
+
+## DEC-005 - M1 Uses LunarGateway Protocol Notes, Not Deep Product Coupling
+
+Date: 2026-07-31
+
+Decision: The first Lunar proof uses the public LunarGateway protocol constants and message behavior as a reference, with explicit attribution, but keeps the code isolated in a local protocol adapter.
+
+Reason: This accelerates proof of data while preserving the option to replace or rewrite the scale layer later.
