@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <BLEDevice.h>
+#include <map>
 
 #include "LunarProtocol.h"
 #include "MnemorConfig.h"
@@ -9,6 +10,7 @@ namespace {
 BLEUUID serviceUuid("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
 BLEUUID commandUuid("49535343-8841-43f4-a8d4-ecbe34729bb3");
 BLEUUID dataUuid("49535343-1e4d-4bd9-ba61-23c647249616");
+BLEUUID legacyReadWriteUuid((uint16_t)0x2A80);
 
 BLEAdvertisedDevice* targetDevice = nullptr;
 BLEClient* client = nullptr;
@@ -23,6 +25,7 @@ bool connected = false;
 bool scanning = false;
 bool csvHeaderPrinted = false;
 bool debugPayloads = false;
+bool scanDebug = BLE_SCAN_LOG_ALL;
 
 unsigned long lastHeartbeatMs = 0;
 unsigned long lastDataMs = 0;
@@ -43,6 +46,15 @@ bool targetMacConfigured() {
   return String(LUNAR_TARGET_MAC).length() > 0;
 }
 
+String uuidToLowerString(BLEUUID uuid) {
+  return lowerCopy(String(uuid.toString().c_str()));
+}
+
+bool uuidMatches(BLERemoteCharacteristic* characteristic, BLEUUID uuid) {
+  return characteristic != nullptr &&
+         uuidToLowerString(characteristic->getUUID()) == uuidToLowerString(uuid);
+}
+
 bool matchesTarget(BLEAdvertisedDevice& advertisedDevice) {
   const String address = advertisedDevice.getAddress().toString().c_str();
 
@@ -57,6 +69,90 @@ bool matchesTarget(BLEAdvertisedDevice& advertisedDevice) {
   const String lowerName = lowerCopy(name);
   return lowerName.indexOf(lowerCopy(String(LUNAR_NAME_MATCH))) >= 0 ||
          lowerName.indexOf("acaia") >= 0;
+}
+
+void printAdvertisedDevice(const char* prefix, const String& name, const String& address, int rssi) {
+  Serial.print(prefix);
+  Serial.print(" name=");
+  Serial.print(name.length() ? name : "(no name)");
+  Serial.print(" address=");
+  Serial.print(address);
+  Serial.print(" rssi=");
+  Serial.println(rssi);
+}
+
+void printCharacteristicSummary(BLERemoteCharacteristic* characteristic) {
+  if (characteristic == nullptr) {
+    return;
+  }
+
+  Serial.print("[BLE] characteristic=");
+  Serial.print(characteristic->getUUID().toString().c_str());
+  Serial.print(" props=");
+  Serial.print(characteristic->canRead() ? "r" : "-");
+  Serial.print(characteristic->canWrite() ? "w" : "-");
+  Serial.print(characteristic->canWriteNoResponse() ? "W" : "-");
+  Serial.print(characteristic->canNotify() ? "n" : "-");
+  Serial.println(characteristic->canIndicate() ? "i" : "-");
+}
+
+bool discoverLunarCharacteristics() {
+  commandChar = nullptr;
+  dataChar = nullptr;
+
+  std::map<std::string, BLERemoteService*>* services = client->getServices();
+  if (services == nullptr || services->empty()) {
+    Serial.println("[BLE] no services discovered");
+    return false;
+  }
+
+  Serial.print("[BLE] service count=");
+  Serial.println(services->size());
+
+  for (const auto& serviceEntry : *services) {
+    BLERemoteService* service = serviceEntry.second;
+    if (service == nullptr) {
+      continue;
+    }
+
+    const String serviceId = uuidToLowerString(service->getUUID());
+    Serial.print("[BLE] service=");
+    Serial.println(service->getUUID().toString().c_str());
+
+    std::map<std::string, BLERemoteCharacteristic*>* characteristics =
+        service->getCharacteristics();
+    if (characteristics == nullptr) {
+      continue;
+    }
+
+    for (const auto& characteristicEntry : *characteristics) {
+      BLERemoteCharacteristic* characteristic = characteristicEntry.second;
+      printCharacteristicSummary(characteristic);
+
+      if (uuidMatches(characteristic, commandUuid)) {
+        commandChar = characteristic;
+        Serial.println("[BLE] command characteristic matched");
+      }
+
+      if (uuidMatches(characteristic, dataUuid)) {
+        dataChar = characteristic;
+        Serial.println("[BLE] data characteristic matched");
+      }
+
+      if (uuidMatches(characteristic, legacyReadWriteUuid)) {
+        commandChar = characteristic;
+        dataChar = characteristic;
+        Serial.println("[BLE] legacy read/write characteristic matched");
+      }
+    }
+
+    if (serviceId == uuidToLowerString(serviceUuid) && commandChar != nullptr &&
+        dataChar != nullptr) {
+      Serial.println("[BLE] primary service characteristics resolved");
+    }
+  }
+
+  return commandChar != nullptr && dataChar != nullptr;
 }
 
 void printPayloadHex(const uint8_t* data, size_t length) {
@@ -114,13 +210,13 @@ class AdvertisedCallbacks : public BLEAdvertisedDeviceCallbacks {
     String name = advertisedDevice.haveName() ? advertisedDevice.getName().c_str() : "";
     String address = advertisedDevice.getAddress().toString().c_str();
 
-    if (matchesTarget(advertisedDevice)) {
-      Serial.print("[BLE] found name=");
-      Serial.print(name.length() ? name : "(no name)");
-      Serial.print(" address=");
-      Serial.print(address);
-      Serial.print(" rssi=");
-      Serial.println(advertisedDevice.getRSSI());
+    const bool matches = matchesTarget(advertisedDevice);
+    if (scanDebug && !matches) {
+      printAdvertisedDevice("[BLE] seen", name, address, advertisedDevice.getRSSI());
+    }
+
+    if (matches) {
+      printAdvertisedDevice("[BLE] found", name, address, advertisedDevice.getRSSI());
 
       oled.showFound(name.length() ? name : address, advertisedDevice.getRSSI());
       BLEDevice::getScan()->stop();
@@ -193,34 +289,17 @@ bool connectToLunar() {
   Serial.println("[BLE] connected");
   client->setMTU(517);
 
-  BLERemoteService* service = client->getService(serviceUuid);
-  if (service == nullptr) {
-    Serial.println("[BLE] service not found");
+  if (!discoverLunarCharacteristics()) {
+    Serial.println("[BLE] required characteristics not found");
     client->disconnect();
     return false;
   }
-  Serial.println("[BLE] service found");
-
-  commandChar = service->getCharacteristic(commandUuid);
-  if (commandChar == nullptr) {
-    Serial.println("[BLE] command characteristic not found");
-    client->disconnect();
-    return false;
-  }
-  Serial.println("[BLE] command characteristic found");
-
-  dataChar = service->getCharacteristic(dataUuid);
-  if (dataChar == nullptr) {
-    Serial.println("[BLE] data characteristic not found");
-    client->disconnect();
-    return false;
-  }
-  Serial.println("[BLE] data characteristic found");
+  Serial.println("[BLE] required characteristics found");
 
   lunar.begin(commandChar);
 
-  if (dataChar->canNotify()) {
-    dataChar->registerForNotify(notifyCallback);
+  if (dataChar->canNotify() || dataChar->canIndicate()) {
+    dataChar->registerForNotify(notifyCallback, dataChar->canNotify());
     Serial.println("[BLE] notifications subscribed");
   } else {
     Serial.println("[BLE] data characteristic cannot notify");
@@ -268,8 +347,12 @@ void handleSerialCommands() {
     debugPayloads = !debugPayloads;
     Serial.print("[BLE] debug_payloads=");
     Serial.println(debugPayloads ? 1 : 0);
+  } else if (trimmed == "a") {
+    scanDebug = !scanDebug;
+    Serial.print("[BLE] scan_debug=");
+    Serial.println(scanDebug ? 1 : 0);
   } else if (trimmed == "?") {
-    Serial.println("[CMD] t=tare n=notifications b=battery/settings s=start h=stop r=reset m=payload debug");
+    Serial.println("[CMD] t=tare n=notifications b=battery/settings s=start h=stop r=reset m=payload debug a=scan debug");
   }
 }
 

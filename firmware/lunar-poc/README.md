@@ -173,6 +173,17 @@ This proof uses protocol behavior from the MIT-licensed LunarGateway reference i
 - heartbeat must be sent before the scale closes the BLE connection
 - weight streaming must be requested explicitly
 
+Hardware testing on a real Lunar 2021 / AL008 showed the scale advertising as `ACAIAL-*`.
+The firmware now discovers all services after connection and matches the command/data
+characteristics directly instead of failing when the fixed service UUID is absent.
+
+Additional compatibility reference:
+
+- AcaiaArduinoBLE defines the same newer Acaia command/data characteristic UUIDs and a legacy `0x2A80` fallback:
+  <https://github.com/tatemazer/AcaiaArduinoBLE>
+- Acaia's Lunar 2021 manual documents the Bluetooth setup setting `[bt_SEt]` and the Bluetooth connection indicator:
+  <https://cdn.acaia.co/web/2024_doc/manual/lunar2021/Lunar2021_MAN_AEAF15002_EN.pdf>
+
 ## Notes
 
 Keep this proof boring. No UI polish until this passes.

@@ -24,6 +24,10 @@
 #define BLE_SCAN_SECONDS 3
 #endif
 
+#ifndef BLE_SCAN_LOG_ALL
+#define BLE_SCAN_LOG_ALL 0
+#endif
+
 #ifndef HEARTBEAT_INTERVAL_MS
 // LunarGateway notes the Lunar disconnects after roughly 3000 ms without traffic.
 #define HEARTBEAT_INTERVAL_MS 2500

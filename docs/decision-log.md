@@ -47,3 +47,11 @@ Date: 2026-07-31
 Decision: The M1 hardware test uses the Freenove ESP32 WROVER as the primary board.
 
 Reason: The available ESP32-S3 WROOM-1 is self-assembled and has a USB-C connector orientation fault, so it cannot connect over USB. The WROVER builds successfully and is sufficient for BLE proof-of-data.
+
+## DEC-007 - Discover Acaia Characteristics Instead Of Requiring One Service UUID
+
+Date: 2026-07-31
+
+Decision: After connecting to a Lunar, the firmware discovers all BLE services and matches the Acaia command/data characteristics directly, with a legacy `0x2A80` fallback.
+
+Reason: Real AL008 hardware advertised as `ACAIAL-*` and accepted a BLE connection, but did not expose the originally assumed fixed service UUID. Characteristic discovery preserves the narrow M1 scope while handling observed Lunar 2021 BLE profile differences.
