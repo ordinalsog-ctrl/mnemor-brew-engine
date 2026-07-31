@@ -31,3 +31,35 @@ Date: 2026-07-31
 Decision: Capture and recommendation must work locally without cloud dependency in the first version.
 
 Reason: Local-first operation reduces workflow friction and preserves user ownership of data.
+
+## DEC-005 - M1 Uses LunarGateway Protocol Notes, Not Deep Product Coupling
+
+Date: 2026-07-31
+
+Decision: The first Lunar proof uses the public LunarGateway protocol constants and message behavior as a reference, with explicit attribution, but keeps the code isolated in a local protocol adapter.
+
+Reason: This accelerates proof of data while preserving the option to replace or rewrite the scale layer later.
+
+## DEC-006 - Use Freenove ESP32 WROVER For M1 Hardware Test
+
+Date: 2026-07-31
+
+Decision: The M1 hardware test uses the Freenove ESP32 WROVER as the primary board.
+
+Reason: The available ESP32-S3 WROOM-1 is self-assembled and has a USB-C connector orientation fault, so it cannot connect over USB. The WROVER builds successfully and is sufficient for BLE proof-of-data.
+
+## DEC-007 - Discover Acaia Characteristics Instead Of Requiring One Service UUID
+
+Date: 2026-07-31
+
+Decision: After connecting to a Lunar, the firmware discovers all BLE services and matches the Acaia command/data characteristics directly, with a legacy `0x2A80` fallback.
+
+Reason: Real AL008 hardware advertised as `ACAIAL-*` and accepted a BLE connection, but did not expose the originally assumed fixed service UUID. Characteristic discovery preserves the narrow M1 scope while handling observed Lunar 2021 BLE profile differences.
+
+## DEC-008 - Reassemble Lunar BLE Notifications Before Decoding
+
+Date: 2026-07-31
+
+Decision: The firmware buffers incoming Lunar notification bytes and decodes only complete `EF DD` frames.
+
+Reason: Live AL008 testing showed that a single logical Lunar frame can be split across two BLE notifications or share a notification with the next frame. Reassembly converted raw payloads into a working CSV weight stream.

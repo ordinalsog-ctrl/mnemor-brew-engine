@@ -81,6 +81,31 @@ git push -u origin main
 
 Replace `<owner>` with the GitHub account or organization.
 
+## Remote Status
+
+Checked on 2026-07-31 after local account switch:
+
+```text
+origin = https://github.com/ordinalsog-ctrl/mnemor-brew-engine.git
+branch = feature/lunar-ble
+default branch = main
+```
+
+GitHub CLI active account:
+
+```text
+ordinalsog-ctrl
+```
+
+Remote branches:
+
+```text
+main
+feature/lunar-ble
+```
+
+Note: Push originally failed because `weissio` was the active local GitHub account. Switching GitHub CLI to `ordinalsog-ctrl` fixed push access.
+
 ## First Issues
 
 Use `tools/work-packages.csv` as the source list for the first GitHub issues.

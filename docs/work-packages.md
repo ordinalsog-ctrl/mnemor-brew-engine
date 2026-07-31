@@ -67,7 +67,26 @@ Acceptance criteria:
 
 ## M1 - Proof of Data
 
-### AP-010 - ESP32 Lunar BLE Scan
+### AP-010 - PlatformIO Project
+
+Labels: `type:firmware`, `priority:p0`, `milestone:m1`
+
+Acceptance criteria:
+
+- `firmware/lunar-poc/platformio.ini` exists
+- project builds for Freenove ESP32 WROVER target
+- build and flash commands are documented
+
+### AP-011 - OLED Initialization
+
+Labels: `type:firmware`, `priority:p1`, `milestone:m1`
+
+Acceptance criteria:
+
+- OLED shows `Mnemor Brew` and `Booting...`
+- OLED failure does not block BLE logging
+
+### AP-012 - ESP32 Lunar BLE Scan
 
 Labels: `type:firmware`, `priority:p0`, `milestone:m1`
 
@@ -77,7 +96,7 @@ Acceptance criteria:
 - Lunar can be identified in logs
 - scan failure is logged
 
-### AP-011 - Lunar Connection
+### AP-013 - Lunar Connection
 
 Labels: `type:firmware`, `priority:p0`, `milestone:m1`, `risk:high`
 
@@ -87,7 +106,17 @@ Acceptance criteria:
 - reconnect behavior is tested
 - 20 startup attempts are measured
 
-### AP-012 - Weight Stream Capture
+### AP-014 - Notifications Subscribe
+
+Labels: `type:firmware`, `priority:p0`, `milestone:m1`
+
+Acceptance criteria:
+
+- data characteristic notifications are registered
+- notification request is sent after connection
+- heartbeat keeps stream alive
+
+### AP-015 - Weight Stream Capture
 
 Labels: `type:firmware`, `type:data`, `priority:p0`, `milestone:m1`
 
@@ -97,7 +126,7 @@ Acceptance criteria:
 - at least 10 minutes of stream is captured
 - gaps are counted
 
-### AP-013 - Tare Command
+### AP-016 - Tare Command
 
 Labels: `type:firmware`, `priority:p0`, `milestone:m1`
 
@@ -107,7 +136,27 @@ Acceptance criteria:
 - result is logged
 - scale returns to usable stream after tare
 
-### AP-014 - First 50 Shot Dataset
+### AP-017 - Reconnect Handling
+
+Labels: `type:firmware`, `priority:p0`, `milestone:m1`, `risk:high`
+
+Acceptance criteria:
+
+- turning the Lunar off logs disconnect or stale stream
+- turning it back on starts scan/connect loop
+- recovered stream continues CSV output
+
+### AP-018 - CSV Logger
+
+Labels: `type:firmware`, `type:data`, `priority:p0`, `milestone:m1`
+
+Acceptance criteria:
+
+- serial output includes `timestamp_ms,weight_g,battery_percent,connected`
+- values are readable by a CSV parser
+- logs can be saved from USB serial monitor
+
+### AP-019 - First 50 Shot Dataset
 
 Labels: `type:data`, `type:analysis`, `priority:p0`, `milestone:m1`
 

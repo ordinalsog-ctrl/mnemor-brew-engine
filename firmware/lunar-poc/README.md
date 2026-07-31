@@ -18,28 +18,139 @@ In scope:
 - battery reading if available
 - serial logging
 - disconnect and reconnect notes
+- OLED boot and connected status
 
 Out of scope:
 
-- OLED UI
-- buttons
+- polished OLED UI
+- buttons beyond serial commands
 - recommendation logic
 - enclosure
 - app integration
 - broad scale support
 
+## PlatformIO
+
+Default environment:
+
+```text
+freenove_esp32_wrover
+```
+
+Supported environments:
+
+```text
+freenove_esp32_s3_wroom
+esp32-s3-devkitc-1
+freenove_esp32_wrover
+```
+
+Use the Freenove ESP32 WROVER first. The available ESP32-S3 WROOM-1 is blocked for M1 because its USB-C connector is assembled incorrectly and cannot connect.
+
+If the exact ESP32-S3 board uses a different PlatformIO board ID or OLED I2C pins, update:
+
+- `platformio.ini`
+- `include/MnemorConfig.h`
+
+For a private scale MAC, create:
+
+```text
+include/MnemorConfig.local.h
+```
+
+Example:
+
+```cpp
+#pragma once
+#define LUNAR_TARGET_MAC "34:81:f4:e0:1b:ff"
+#define OLED_SDA_PIN 8
+#define OLED_SCL_PIN 9
+```
+
+`MnemorConfig.local.h` is gitignored.
+
+## Build
+
+```bash
+pio run
+```
+
+## Flash
+
+Connect the Freenove ESP32 WROVER over USB and run:
+
+```bash
+pio run -t upload
+```
+
+If multiple ports are visible:
+
+```bash
+pio device list
+pio run -t upload --upload-port /dev/cu.usbmodemXXXX
+```
+
+## Serial Monitor
+
+```bash
+pio device monitor -b 115200
+```
+
+From repo root, the wrapped local workflow is:
+
+```bash
+tools/dev/check_ports.sh
+tools/dev/flash_lunar_poc.sh
+tools/dev/monitor_lunar_poc.sh
+```
+
+Analyze the latest capture log with M1 long-capture gates:
+
+```bash
+tools/dev/analyze_lunar_capture.py --m1-long
+```
+
+The analyzer checks sample count, capture duration, sample gaps, connection flags,
+battery counts, weight summary statistics, and error/disconnect lines.
+
+To force the WROVER environment:
+
+```bash
+PIO_ENV=freenove_esp32_wrover tools/dev/flash_lunar_poc.sh
+```
+
 ## Target Serial Output
 
 ```text
+[BOOT] Mnemor Brew Engine Lunar PoC
 [BLE] scan started
-[BLE] Lunar found: Acaia Lunar
+[BLE] Searching...
+[BLE] found name=Acaia Lunar address=34:81:f4:e0:1b:ff rssi=-58
+[BLE] connecting address=34:81:f4:e0:1b:ff
 [BLE] connected
-[SCALE] battery=82
-[SCALE] weight=0.00
-[SCALE] weight=186.42
+[BLE] service found
+[BLE] command characteristic found
+[BLE] data characteristic found
+[BLE] notifications subscribed
+timestamp_ms,weight_g,battery_percent,connected
+4812,0.00,82,1
+[SCALE] weight=0.00 g
 [SCALE] tare sent
-[SCALE] weight=0.00
-[BLE] stream_ok duration_s=600 gaps=0
+```
+
+## Serial Commands
+
+Send newline-terminated commands at 115200 baud:
+
+```text
+t = tare
+n = request notifications
+b = request settings / battery
+s = start timer
+h = stop timer
+r = reset timer
+m = toggle raw BLE payload debug
+? = help
 ```
 
 ## Test Protocol
@@ -60,6 +171,30 @@ Out of scope:
 - stream remains stable for 10 minutes
 - tare command works without breaking stream
 - logs are detailed enough to debug failures
+
+## Protocol Notes
+
+This proof uses protocol behavior from the MIT-licensed LunarGateway reference implementation by Frowin Ellermann:
+
+- service UUID: `49535343-FE7D-4AE5-8FA9-9FAFD205E455`
+- command characteristic: `49535343-8841-43f4-a8d4-ecbe34729bb3`
+- data characteristic: `49535343-1e4d-4bd9-ba61-23c647249616`
+- heartbeat must be sent before the scale closes the BLE connection
+- weight streaming must be requested explicitly
+
+Hardware testing on a real Lunar 2021 / AL008 showed the scale advertising as `ACAIAL-*`.
+The firmware now discovers all services after connection and matches the command/data
+characteristics directly instead of failing when the fixed service UUID is absent.
+The real scale can split one logical `EF DD` protocol frame across multiple BLE
+notifications, so the firmware reassembles byte chunks before decoding weight or
+battery frames.
+
+Additional compatibility reference:
+
+- AcaiaArduinoBLE defines the same newer Acaia command/data characteristic UUIDs and a legacy `0x2A80` fallback:
+  <https://github.com/tatemazer/AcaiaArduinoBLE>
+- Acaia's Lunar 2021 manual documents the Bluetooth setup setting `[bt_SEt]` and the Bluetooth connection indicator:
+  <https://cdn.acaia.co/web/2024_doc/manual/lunar2021/Lunar2021_MAN_AEAF15002_EN.pdf>
 
 ## Notes
 
