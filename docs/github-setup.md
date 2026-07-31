@@ -81,34 +81,30 @@ git push -u origin main
 
 Replace `<owner>` with the GitHub account or organization.
 
-## Current Remote Status
+## Remote Status
 
-Checked on 2026-07-31:
+Checked on 2026-07-31 after local account switch:
 
 ```text
 origin = https://github.com/ordinalsog-ctrl/mnemor-brew-engine.git
 branch = feature/lunar-ble
+default branch = main
 ```
 
-GitHub App repository permissions:
+GitHub CLI active account:
 
 ```text
-pull=true
-push=false
+ordinalsog-ctrl
 ```
 
-Local push attempt:
+Remote branches:
 
 ```text
-Permission to ordinalsog-ctrl/mnemor-brew-engine.git denied to weissio.
-HTTP 403
+main
+feature/lunar-ble
 ```
 
-Required fix:
-
-- grant write access to the GitHub account used locally, or
-- grant Contents write permission to the connected GitHub App, or
-- switch `origin` to a repository where the local account has push permission.
+Note: Push originally failed because `weissio` was the active local GitHub account. Switching GitHub CLI to `ordinalsog-ctrl` fixed push access.
 
 ## First Issues
 
