@@ -19,10 +19,16 @@ ls /dev/cu.* /dev/tty.* 2>/dev/null | sed -n '1,160p' || true
 
 echo
 echo "[Mnemor] Likely ESP32 ports"
-ls /dev/cu.usb* /dev/cu.SLAB_USB* /dev/cu.wchusb* /dev/cu.usbserial* 2>/dev/null || {
+shopt -s nullglob
+ports=(/dev/cu.usbmodem* /dev/cu.usbserial* /dev/cu.SLAB_USB* /dev/cu.wchusb*)
+shopt -u nullglob
+
+if (( ${#ports[@]} > 0 )); then
+  printf '%s\n' "${ports[@]}"
+else
   echo "[WARN] No likely ESP32 USB serial port found."
   echo "[NEXT] Connect the Freenove ESP32 WROVER by USB, then run this script again."
-}
+fi
 
 echo
 echo "[Mnemor] Repo: $ROOT_DIR"

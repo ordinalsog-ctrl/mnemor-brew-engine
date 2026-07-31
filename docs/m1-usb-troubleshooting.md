@@ -54,28 +54,24 @@ macOS USB tree did not show Freenove, ESP32, CH340, CH341, WCH, CP210x, UART, US
 Current interpretation:
 
 ```text
-The issue is still before firmware flashing.
-The board is powered but the USB data path is not enumerating.
-Cable, physical port/path, or board USB-UART hardware are more likely than firmware.
-Since the hub is confirmed working, the Micro-USB cable and WROVER USB path are now the highest-priority checks.
+The original issue was before firmware flashing.
+The board was powered but the USB data path did not enumerate until the cable was changed.
+After switching to a USB-C to USB-C cable, `/dev/cu.usbserial-10` appeared with USB VID:PID `1A86:7523`.
+The firmware was flashed successfully to the Freenove ESP32 WROVER.
 ```
 
 ## Next Diagnostic Order
 
-1. Connect USB directly to the Freenove ESP32 WROVER board, not to the GPIO expansion board.
-2. Use a known data-capable USB cable.
-3. Since the hub has been confirmed working, change only the Micro-USB cable next.
-4. Prefer either a USB-C to Micro-USB data cable or a simple USB-C to USB-A adapter plus a known data-capable Micro-USB cable.
-5. Run:
+1. Keep using the working USB-C to USB-C data cable.
+2. Keep the WROVER on `/dev/cu.usbserial-10` while the serial port remains stable.
+3. Run:
 
 ```bash
 tools/dev/check_ports.sh
 ```
 
-6. If still no port, try a second cable.
-7. If still no port with a proven data cable, inspect whether the cable is connected to the WROVER programming USB connector.
-8. If a USB device appears but no serial port appears, install/check the board's USB-UART driver.
-9. If no USB device appears with a proven data cable and correct board connector, treat the WROVER USB-UART path as suspect.
+4. If the port disappears, first re-seat or replace the cable before changing firmware settings.
+5. If a USB device appears but no serial port appears, install/check the board's USB-UART driver.
 
 ## Driver Note
 
