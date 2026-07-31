@@ -34,10 +34,20 @@ Out of scope:
 Default environment:
 
 ```text
-esp32-s3-devkitc-1
+freenove_esp32_s3_wroom
 ```
 
-If the exact Waveshare ESP32-S3 board uses a different PlatformIO board ID or OLED I2C pins, update:
+Supported environments:
+
+```text
+freenove_esp32_s3_wroom
+esp32-s3-devkitc-1
+freenove_esp32_wrover
+```
+
+Use the ESP32-S3 WROOM first. The Freenove ESP32 WROVER is a fallback if the S3 board is unavailable or not detected.
+
+If the exact ESP32-S3 board uses a different PlatformIO board ID or OLED I2C pins, update:
 
 - `platformio.ini`
 - `include/MnemorConfig.h`
@@ -92,6 +102,12 @@ From repo root, the wrapped local workflow is:
 tools/dev/check_ports.sh
 tools/dev/flash_lunar_poc.sh
 tools/dev/monitor_lunar_poc.sh
+```
+
+To flash the WROVER fallback:
+
+```bash
+PIO_ENV=freenove_esp32_wrover tools/dev/flash_lunar_poc.sh
 ```
 
 ## Target Serial Output

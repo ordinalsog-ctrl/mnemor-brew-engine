@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 FIRMWARE_DIR="$ROOT_DIR/firmware/lunar-poc"
 PIO_BIN="${PIO_BIN:-/Users/jonasweiss/Documents/Codex/2026-07-31/new-chat/work/platformio-venv/bin/pio}"
+PIO_ENV="${PIO_ENV:-freenove_esp32_s3_wroom}"
 
 find_port() {
   for pattern in /dev/cu.usbmodem* /dev/cu.usbserial* /dev/cu.SLAB_USB* /dev/cu.wchusb*; do
@@ -33,13 +34,13 @@ fi
 echo "[Mnemor] Building firmware"
 (
   cd "$FIRMWARE_DIR"
-  "$PIO_BIN" run
+  "$PIO_BIN" run -e "$PIO_ENV"
 )
 
-echo "[Mnemor] Flashing firmware to $PORT"
+echo "[Mnemor] Flashing firmware to $PORT with env=$PIO_ENV"
 (
   cd "$FIRMWARE_DIR"
-  "$PIO_BIN" run -t upload --upload-port "$PORT"
+  "$PIO_BIN" run -e "$PIO_ENV" -t upload --upload-port "$PORT"
 )
 
 echo "[Mnemor] Flash complete"

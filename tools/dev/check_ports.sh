@@ -26,3 +26,7 @@ ls /dev/cu.usb* /dev/cu.SLAB_USB* /dev/cu.wchusb* /dev/cu.usbserial* 2>/dev/null
 
 echo
 echo "[Mnemor] Repo: $ROOT_DIR"
+echo
+echo "[Mnemor] Preferred first board: ESP32-S3 WROOM"
+echo "[Mnemor] Preferred PlatformIO env: freenove_esp32_s3_wroom"
+echo "[Mnemor] Fallback env for Freenove ESP32 WROVER: freenove_esp32_wrover"

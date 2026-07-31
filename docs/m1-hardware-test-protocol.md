@@ -8,6 +8,28 @@ Prove the first real hardware loop:
 ESP32-S3 -> BLE scan -> Acaia Lunar -> notifications -> USB serial CSV weight stream
 ```
 
+## Board Choice
+
+Use this order:
+
+1. `ESP32-S3 WROOM-1`
+2. `Freenove ESP32 WROVER`
+3. `Freenove ESP32 GPIO Expansion Board`
+
+The GPIO Expansion Board is not the controller. Use it only as a breakout or wiring helper.
+
+The preferred first controller is the ESP32-S3 WROOM-1 because the firmware target now defaults to:
+
+```text
+freenove_esp32_s3_wroom
+```
+
+The WROVER remains supported as a fallback:
+
+```bash
+PIO_ENV=freenove_esp32_wrover tools/dev/flash_lunar_poc.sh
+```
+
 ## Preflight
 
 1. Charge or power the ESP32-S3.
@@ -63,6 +85,12 @@ Explicit port:
 
 ```bash
 tools/dev/flash_lunar_poc.sh /dev/cu.usbmodemXXXX
+```
+
+Fallback for Freenove ESP32 WROVER:
+
+```bash
+PIO_ENV=freenove_esp32_wrover tools/dev/flash_lunar_poc.sh /dev/cu.usbserialXXXX
 ```
 
 ## Step 4 - Monitor
