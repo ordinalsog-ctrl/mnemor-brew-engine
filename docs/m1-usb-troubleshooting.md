@@ -32,6 +32,13 @@ If the board does not appear in the macOS USB device tree and no serial port is 
 4. USB-UART chip or board USB path is damaged.
 5. Driver issue, if the board appears in USB tree but no `/dev/cu.*` port is created.
 
+Current hardware constraint:
+
+```text
+MacBook has no native USB-A port.
+The WROVER must currently connect through a USB hub or adapter.
+```
+
 ## Confirmed Attempts
 
 2026-07-31:
@@ -55,16 +62,17 @@ Cable, physical port/path, adapter/hub, or board USB-UART hardware are more like
 
 1. Connect USB directly to the Freenove ESP32 WROVER board, not to the GPIO expansion board.
 2. Use a known data-capable USB cable.
-3. Avoid hubs/adapters for the first test if possible.
-4. Run:
+3. Since the MacBook needs a hub or adapter, verify that the hub supports USB data with another device if possible.
+4. Prefer either a USB-C to Micro-USB data cable or a simple USB-C to USB-A adapter plus a known data-capable Micro-USB cable.
+5. Run:
 
 ```bash
 tools/dev/check_ports.sh
 ```
 
-5. If still no port, try a second cable.
-6. If still no port, try another Mac USB port or adapter.
-7. If a USB device appears but no serial port appears, install/check the board's USB-UART driver.
+6. If still no port, try a second cable.
+7. If still no port, try another hub or USB-C adapter.
+8. If a USB device appears but no serial port appears, install/check the board's USB-UART driver.
 
 ## Driver Note
 
