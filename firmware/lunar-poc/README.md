@@ -104,6 +104,15 @@ tools/dev/flash_lunar_poc.sh
 tools/dev/monitor_lunar_poc.sh
 ```
 
+Analyze the latest capture log with M1 long-capture gates:
+
+```bash
+tools/dev/analyze_lunar_capture.py --m1-long
+```
+
+The analyzer checks sample count, capture duration, sample gaps, connection flags,
+battery counts, weight summary statistics, and error/disconnect lines.
+
 To force the WROVER environment:
 
 ```bash
