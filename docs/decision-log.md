@@ -55,3 +55,11 @@ Date: 2026-07-31
 Decision: After connecting to a Lunar, the firmware discovers all BLE services and matches the Acaia command/data characteristics directly, with a legacy `0x2A80` fallback.
 
 Reason: Real AL008 hardware advertised as `ACAIAL-*` and accepted a BLE connection, but did not expose the originally assumed fixed service UUID. Characteristic discovery preserves the narrow M1 scope while handling observed Lunar 2021 BLE profile differences.
+
+## DEC-008 - Reassemble Lunar BLE Notifications Before Decoding
+
+Date: 2026-07-31
+
+Decision: The firmware buffers incoming Lunar notification bytes and decodes only complete `EF DD` frames.
+
+Reason: Live AL008 testing showed that a single logical Lunar frame can be split across two BLE notifications or share a notification with the next frame. Reassembly converted raw payloads into a working CSV weight stream.

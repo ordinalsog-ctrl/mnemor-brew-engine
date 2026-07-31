@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <BLEDevice.h>
+#include <cstring>
 #include <map>
 
 #include "LunarProtocol.h"
@@ -12,10 +13,16 @@ BLEUUID commandUuid("49535343-8841-43f4-a8d4-ecbe34729bb3");
 BLEUUID dataUuid("49535343-1e4d-4bd9-ba61-23c647249616");
 BLEUUID legacyReadWriteUuid((uint16_t)0x2A80);
 
+constexpr uint8_t kLunarHeader0 = 0xEF;
+constexpr uint8_t kLunarHeader1 = 0xDD;
+constexpr size_t kLunarRxBufferSize = 128;
+
 BLEAdvertisedDevice* targetDevice = nullptr;
 BLEClient* client = nullptr;
 BLERemoteCharacteristic* commandChar = nullptr;
 BLERemoteCharacteristic* dataChar = nullptr;
+uint8_t lunarRxBuffer[kLunarRxBufferSize] = {0};
+size_t lunarRxLength = 0;
 
 LunarProtocol lunar;
 OledStatus oled;
@@ -24,7 +31,7 @@ bool shouldConnect = false;
 bool connected = false;
 bool scanning = false;
 bool csvHeaderPrinted = false;
-bool debugPayloads = false;
+bool debugPayloads = BLE_PAYLOAD_LOG_ALL;
 bool scanDebug = BLE_SCAN_LOG_ALL;
 
 unsigned long lastHeartbeatMs = 0;
@@ -169,6 +176,20 @@ void printPayloadHex(const uint8_t* data, size_t length) {
   Serial.println();
 }
 
+void printFrameHex(const uint8_t* data, size_t length) {
+  Serial.print("[BLE] frame=");
+  for (size_t i = 0; i < length; ++i) {
+    if (data[i] < 0x10) {
+      Serial.print("0");
+    }
+    Serial.print(data[i], HEX);
+    if (i + 1 < length) {
+      Serial.print(" ");
+    }
+  }
+  Serial.println();
+}
+
 void printCsv(float weightGrams) {
   if (!csvHeaderPrinted) {
     Serial.println("timestamp_ms,weight_g,battery_percent,connected");
@@ -183,6 +204,92 @@ void printCsv(float weightGrams) {
   Serial.println(connected ? 1 : 0);
 }
 
+void handleLunarReading(const LunarReading& reading) {
+  if (reading.hasBattery) {
+    latestBatteryPercent = reading.batteryPercent;
+    Serial.print("[SCALE] battery=");
+    Serial.println(latestBatteryPercent);
+  }
+  if (reading.hasWeight) {
+    latestWeightGrams = reading.weightGrams;
+    hasNewWeight = true;
+  }
+}
+
+void dropRxBytes(size_t count) {
+  if (count >= lunarRxLength) {
+    lunarRxLength = 0;
+    return;
+  }
+
+  const size_t remaining = lunarRxLength - count;
+  std::memmove(lunarRxBuffer, lunarRxBuffer + count, remaining);
+  lunarRxLength = remaining;
+}
+
+void consumeLunarRxBuffer() {
+  while (lunarRxLength >= 2) {
+    size_t headerOffset = 0;
+    while (headerOffset + 1 < lunarRxLength &&
+           !(lunarRxBuffer[headerOffset] == kLunarHeader0 &&
+             lunarRxBuffer[headerOffset + 1] == kLunarHeader1)) {
+      ++headerOffset;
+    }
+
+    if (headerOffset > 0) {
+      dropRxBytes(headerOffset);
+    }
+
+    if (lunarRxLength < 5) {
+      return;
+    }
+
+    if (lunarRxBuffer[0] != kLunarHeader0 || lunarRxBuffer[1] != kLunarHeader1) {
+      dropRxBytes(1);
+      continue;
+    }
+
+    const size_t frameLength = static_cast<size_t>(lunarRxBuffer[3]) + 5;
+    if (frameLength > kLunarRxBufferSize) {
+      Serial.println("[BLE] invalid frame length; resyncing");
+      dropRxBytes(1);
+      continue;
+    }
+
+    if (lunarRxLength < frameLength) {
+      return;
+    }
+
+    if (debugPayloads) {
+      printFrameHex(lunarRxBuffer, frameLength);
+    }
+
+    handleLunarReading(lunar.decode(lunarRxBuffer, frameLength));
+    dropRxBytes(frameLength);
+  }
+}
+
+void appendLunarBytes(const uint8_t* data, size_t length) {
+  if (data == nullptr || length == 0) {
+    return;
+  }
+
+  if (length > kLunarRxBufferSize) {
+    data += length - kLunarRxBufferSize;
+    length = kLunarRxBufferSize;
+    lunarRxLength = 0;
+  }
+
+  if (lunarRxLength + length > kLunarRxBufferSize) {
+    Serial.println("[BLE] rx buffer overflow; resetting");
+    lunarRxLength = 0;
+  }
+
+  std::memcpy(lunarRxBuffer + lunarRxLength, data, length);
+  lunarRxLength += length;
+  consumeLunarRxBuffer();
+}
+
 void notifyCallback(
     BLERemoteCharacteristic*,
     uint8_t* data,
@@ -193,16 +300,7 @@ void notifyCallback(
     printPayloadHex(data, length);
   }
 
-  const LunarReading reading = lunar.decode(data, length);
-  if (reading.hasBattery) {
-    latestBatteryPercent = reading.batteryPercent;
-    Serial.print("[SCALE] battery=");
-    Serial.println(latestBatteryPercent);
-  }
-  if (reading.hasWeight) {
-    latestWeightGrams = reading.weightGrams;
-    hasNewWeight = true;
-  }
+  appendLunarBytes(data, length);
 }
 
 class AdvertisedCallbacks : public BLEAdvertisedDeviceCallbacks {
@@ -240,6 +338,7 @@ class ClientCallbacks : public BLEClientCallbacks {
     connected = false;
     commandChar = nullptr;
     dataChar = nullptr;
+    lunarRxLength = 0;
     Serial.println("[BLE] disconnected");
     oled.showReconnect();
   }
@@ -308,6 +407,7 @@ bool connectToLunar() {
   }
 
   connected = true;
+  lunarRxLength = 0;
   lastDataMs = millis();
   lastHeartbeatMs = 0;
 

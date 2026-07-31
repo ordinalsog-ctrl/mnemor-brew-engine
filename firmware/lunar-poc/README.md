@@ -176,6 +176,9 @@ This proof uses protocol behavior from the MIT-licensed LunarGateway reference i
 Hardware testing on a real Lunar 2021 / AL008 showed the scale advertising as `ACAIAL-*`.
 The firmware now discovers all services after connection and matches the command/data
 characteristics directly instead of failing when the fixed service UUID is absent.
+The real scale can split one logical `EF DD` protocol frame across multiple BLE
+notifications, so the firmware reassembles byte chunks before decoding weight or
+battery frames.
 
 Additional compatibility reference:
 
