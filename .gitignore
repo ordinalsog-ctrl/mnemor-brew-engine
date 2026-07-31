@@ -22,5 +22,8 @@ data/private/
 *.log
 firmware/lunar-poc/include/MnemorConfig.local.h
 
+# PlatformIO local build output
+firmware/lunar-poc/.pio/
+
 # Notebooks
 .ipynb_checkpoints/

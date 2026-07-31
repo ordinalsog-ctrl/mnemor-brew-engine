@@ -86,6 +86,14 @@ pio run -t upload --upload-port /dev/cu.usbmodemXXXX
 pio device monitor -b 115200
 ```
 
+From repo root, the wrapped local workflow is:
+
+```bash
+tools/dev/check_ports.sh
+tools/dev/flash_lunar_poc.sh
+tools/dev/monitor_lunar_poc.sh
+```
+
 ## Target Serial Output
 
 ```text
