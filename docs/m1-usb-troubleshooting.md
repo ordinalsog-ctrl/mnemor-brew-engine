@@ -32,6 +32,25 @@ If the board does not appear in the macOS USB device tree and no serial port is 
 4. USB-UART chip or board USB path is damaged.
 5. Driver issue, if the board appears in USB tree but no `/dev/cu.*` port is created.
 
+## Confirmed Attempts
+
+2026-07-31:
+
+```text
+WROVER power LED turns on.
+USB 2.0 connection did not create a serial port.
+USB 3.0 connection did not create a serial port.
+macOS USB tree did not show Freenove, ESP32, CH340, CH341, WCH, CP210x, UART, USB serial, usbserial, or usbmodem.
+```
+
+Current interpretation:
+
+```text
+The issue is still before firmware flashing.
+The board is powered but the USB data path is not enumerating.
+Cable, physical port/path, adapter/hub, or board USB-UART hardware are more likely than firmware.
+```
+
 ## Next Diagnostic Order
 
 1. Connect USB directly to the Freenove ESP32 WROVER board, not to the GPIO expansion board.
