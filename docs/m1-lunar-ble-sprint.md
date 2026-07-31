@@ -4,6 +4,10 @@ Date: 2026-07-31
 
 Branch: `feature/lunar-ble`
 
+Primary board as of 2026-07-31: `Freenove ESP32 WROVER`
+
+Blocked board: `ESP32-S3 WROOM-1`, because its self-assembled USB-C connector is oriented incorrectly and cannot connect over USB.
+
 ## Sprint Goal
 
 ESP32 connects to the Acaia Lunar AL008 and continuously prints weight over USB serial.
@@ -13,7 +17,7 @@ No recommendation logic, no shot detection, no product UI.
 ## Implemented
 
 - PlatformIO project in `firmware/lunar-poc/`
-- ESP32-S3 Arduino environment
+- ESP32 / ESP32-S3 Arduino environment
 - OLED boot status:
   - `Mnemor Brew`
   - `Booting...`

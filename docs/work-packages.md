@@ -74,7 +74,7 @@ Labels: `type:firmware`, `priority:p0`, `milestone:m1`
 Acceptance criteria:
 
 - `firmware/lunar-poc/platformio.ini` exists
-- project builds for ESP32-S3 target
+- project builds for Freenove ESP32 WROVER target
 - build and flash commands are documented
 
 ### AP-011 - OLED Initialization

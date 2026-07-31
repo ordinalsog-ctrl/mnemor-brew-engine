@@ -5,38 +5,42 @@
 Prove the first real hardware loop:
 
 ```text
-ESP32-S3 -> BLE scan -> Acaia Lunar -> notifications -> USB serial CSV weight stream
+Freenove ESP32 WROVER -> BLE scan -> Acaia Lunar -> notifications -> USB serial CSV weight stream
 ```
 
 ## Board Choice
 
 Use this order:
 
-1. `ESP32-S3 WROOM-1`
-2. `Freenove ESP32 WROVER`
+1. `Freenove ESP32 WROVER`
+2. `ESP32-S3 WROOM-1`
 3. `Freenove ESP32 GPIO Expansion Board`
 
 The GPIO Expansion Board is not the controller. Use it only as a breakout or wiring helper.
 
-The preferred first controller is the ESP32-S3 WROOM-1 because the firmware target now defaults to:
+The preferred first controller is now the Freenove ESP32 WROVER.
+
+Reason: the available ESP32-S3 WROOM-1 is self-assembled and has a USB-C orientation fault, so it cannot connect over USB.
+
+The firmware target now defaults to:
 
 ```text
-freenove_esp32_s3_wroom
+freenove_esp32_wrover
 ```
 
-The WROVER remains supported as a fallback:
+The ESP32-S3 WROOM target remains buildable for a later replacement board:
 
 ```bash
-PIO_ENV=freenove_esp32_wrover tools/dev/flash_lunar_poc.sh
+PIO_ENV=freenove_esp32_s3_wroom tools/dev/flash_lunar_poc.sh
 ```
 
 ## Preflight
 
-1. Charge or power the ESP32-S3.
+1. Connect the Freenove ESP32 WROVER with a data-capable USB cable.
 2. Turn on the Acaia Lunar AL008.
 3. Ensure the Lunar is not connected to the Acaia app or another device.
 4. If possible, update Lunar firmware through the Acaia updater app before testing.
-5. Connect ESP32-S3 over USB.
+5. Confirm that a USB serial port appears.
 
 ## Step 1 - Check Port
 
@@ -87,7 +91,7 @@ Explicit port:
 tools/dev/flash_lunar_poc.sh /dev/cu.usbmodemXXXX
 ```
 
-Fallback for Freenove ESP32 WROVER:
+Explicit WROVER environment, if needed:
 
 ```bash
 PIO_ENV=freenove_esp32_wrover tools/dev/flash_lunar_poc.sh /dev/cu.usbserialXXXX

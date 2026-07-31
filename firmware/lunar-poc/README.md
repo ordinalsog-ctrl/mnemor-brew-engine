@@ -34,7 +34,7 @@ Out of scope:
 Default environment:
 
 ```text
-freenove_esp32_s3_wroom
+freenove_esp32_wrover
 ```
 
 Supported environments:
@@ -45,7 +45,7 @@ esp32-s3-devkitc-1
 freenove_esp32_wrover
 ```
 
-Use the ESP32-S3 WROOM first. The Freenove ESP32 WROVER is a fallback if the S3 board is unavailable or not detected.
+Use the Freenove ESP32 WROVER first. The available ESP32-S3 WROOM-1 is blocked for M1 because its USB-C connector is assembled incorrectly and cannot connect.
 
 If the exact ESP32-S3 board uses a different PlatformIO board ID or OLED I2C pins, update:
 
@@ -77,7 +77,7 @@ pio run
 
 ## Flash
 
-Connect the ESP32-S3 over USB and run:
+Connect the Freenove ESP32 WROVER over USB and run:
 
 ```bash
 pio run -t upload
@@ -104,7 +104,7 @@ tools/dev/flash_lunar_poc.sh
 tools/dev/monitor_lunar_poc.sh
 ```
 
-To flash the WROVER fallback:
+To force the WROVER environment:
 
 ```bash
 PIO_ENV=freenove_esp32_wrover tools/dev/flash_lunar_poc.sh

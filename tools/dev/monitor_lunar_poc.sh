@@ -27,7 +27,7 @@ fi
 
 if [[ -z "$PORT" ]]; then
   echo "[ERROR] No ESP32 USB serial port found." >&2
-  echo "[NEXT] Connect the ESP32-S3 and run: tools/dev/check_ports.sh" >&2
+  echo "[NEXT] Connect the Freenove ESP32 WROVER and run: tools/dev/check_ports.sh" >&2
   exit 2
 fi
 

@@ -21,12 +21,12 @@ echo
 echo "[Mnemor] Likely ESP32 ports"
 ls /dev/cu.usb* /dev/cu.SLAB_USB* /dev/cu.wchusb* /dev/cu.usbserial* 2>/dev/null || {
   echo "[WARN] No likely ESP32 USB serial port found."
-  echo "[NEXT] Connect the ESP32-S3 by USB, then run this script again."
+  echo "[NEXT] Connect the Freenove ESP32 WROVER by USB, then run this script again."
 }
 
 echo
 echo "[Mnemor] Repo: $ROOT_DIR"
 echo
-echo "[Mnemor] Preferred first board: ESP32-S3 WROOM"
-echo "[Mnemor] Preferred PlatformIO env: freenove_esp32_s3_wroom"
-echo "[Mnemor] Fallback env for Freenove ESP32 WROVER: freenove_esp32_wrover"
+echo "[Mnemor] Primary board now: Freenove ESP32 WROVER"
+echo "[Mnemor] Primary PlatformIO env: freenove_esp32_wrover"
+echo "[Mnemor] ESP32-S3 WROOM-1 is blocked because its USB-C connector is assembled incorrectly."

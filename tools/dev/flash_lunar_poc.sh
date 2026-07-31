@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 FIRMWARE_DIR="$ROOT_DIR/firmware/lunar-poc"
 PIO_BIN="${PIO_BIN:-/Users/jonasweiss/Documents/Codex/2026-07-31/new-chat/work/platformio-venv/bin/pio}"
-PIO_ENV="${PIO_ENV:-freenove_esp32_s3_wroom}"
+PIO_ENV="${PIO_ENV:-freenove_esp32_wrover}"
 
 find_port() {
   for pattern in /dev/cu.usbmodem* /dev/cu.usbserial* /dev/cu.SLAB_USB* /dev/cu.wchusb*; do
@@ -27,7 +27,7 @@ fi
 
 if [[ -z "$PORT" ]]; then
   echo "[ERROR] No ESP32 USB serial port found." >&2
-  echo "[NEXT] Connect the ESP32-S3 and run: tools/dev/check_ports.sh" >&2
+  echo "[NEXT] Connect the Freenove ESP32 WROVER and run: tools/dev/check_ports.sh" >&2
   exit 2
 fi
 

@@ -39,3 +39,11 @@ Date: 2026-07-31
 Decision: The first Lunar proof uses the public LunarGateway protocol constants and message behavior as a reference, with explicit attribution, but keeps the code isolated in a local protocol adapter.
 
 Reason: This accelerates proof of data while preserving the option to replace or rewrite the scale layer later.
+
+## DEC-006 - Use Freenove ESP32 WROVER For M1 Hardware Test
+
+Date: 2026-07-31
+
+Decision: The M1 hardware test uses the Freenove ESP32 WROVER as the primary board.
+
+Reason: The available ESP32-S3 WROOM-1 is self-assembled and has a USB-C connector orientation fault, so it cannot connect over USB. The WROVER builds successfully and is sufficient for BLE proof-of-data.
